@@ -70,10 +70,18 @@
   "summary.level": "Level konversi",
   "summary.threshold": "Batas level resmi belum dipublikasikan",
   "summary.checkGame": "Cek di dalam game",
+  "summary.levelRange": "Rentang {min}–{max} P",
+  "summary.maxLevel": "Level maksimum · tabel hingga {max} P",
+  "summary.noLevel": "Belum mencapai Level 1",
+  "summary.levelRequirement": "Minimum 40 P",
   "summary.breakdown": "Rincian poin",
   "info.howTitle": "Cara kerja Konversi Material",
   "info.howOne": "Konversi Material membutuhkan 4–6 equipment Unbound dengan grade Rare atau lebih tinggi. Setiap equipment menyumbang poin berdasarkan grade, tier, status Prime, dan level enhancement.",
   "info.howTwo": "Total poin menentukan Level Konversi Material di dalam game. Game dapat memprediksi enam hasil; prediksi menggunakan currency dan dapat diulang. Satu item prediksi akan diperoleh saat konversi dilakukan.",
   "info.rewardTitle": "Hadiah konversi khusus",
-  "info.rewardDescription": "Beberapa Circlet, item koleksi eksklusif, dan Memory Chip hanya dapat diperoleh melalui Konversi Material."
+  "info.rewardDescription": "Beberapa Circlet, item koleksi eksklusif, dan Memory Chip hanya dapat diperoleh melalui Konversi Material.",
+  "info.levelTableTitle": "Tabel level konversi",
+  "info.level": "Level",
+  "info.minimumPoints": "Poin minimum",
+  "info.maximumPoints": "Poin maksimum"
 }

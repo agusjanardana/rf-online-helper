@@ -2,13 +2,16 @@
 
 import { Check, CircleAlert, Gamepad2, Layers3 } from "lucide-react";
 import { useLanguage } from "@/src/components/i18n/language-provider";
-import { calculateMaterialPoints } from "@/src/lib/material-conversion";
+import { calculateMaterialPoints, getConversionLevel } from "@/src/lib/material-conversion";
 import { formatNumber } from "@/src/lib/format";
 import type { ConversionSummary as Summary, MaterialItem } from "@/src/types/material";
 
 export function ConversionSummary({ summary, materials }: { summary: Summary; materials: MaterialItem[] }) {
   const { t } = useLanguage();
   const needed = Math.max(0, 4 - summary.validMaterialCount);
+  const conversionLevel = getConversionLevel(summary.totalPoints);
+  const isAbovePublishedMaximum = conversionLevel !== null && summary.totalPoints > conversionLevel.maxPoints;
+
   return (
     <aside className="summary-card">
       <div className="summary-heading"><span>{t("summary.title")}</span><Layers3 size={18} /></div>
@@ -18,10 +21,22 @@ export function ConversionSummary({ summary, materials }: { summary: Summary; ma
         <span className="status-icon">{summary.ready ? <Check size={17} /> : <CircleAlert size={17} />}</span>
         <div><strong>{summary.ready ? t("summary.ready") : t("summary.notReady")}</strong><p>{summary.ready ? t("summary.valid") : t("summary.addMore", { count: needed })}</p></div>
       </div>
-      <div className="level-row"><Gamepad2 size={17} /><span>{t("summary.level")}<small>{t("summary.threshold")}</small></span><strong>{t("summary.checkGame")}</strong></div>
+      <div className={`level-row ${conversionLevel ? "has-level" : ""}`}>
+        <Gamepad2 size={18} />
+        <span>
+          {t("summary.level")}
+          <small>{conversionLevel ? (isAbovePublishedMaximum ? t("summary.maxLevel", { max: formatNumber(conversionLevel.maxPoints) }) : t("summary.levelRange", { min: formatNumber(conversionLevel.minPoints), max: formatNumber(conversionLevel.maxPoints) })) : t("summary.levelRequirement")}</small>
+        </span>
+        <strong>{conversionLevel ? `Level ${conversionLevel.level}` : t("summary.noLevel")}</strong>
+      </div>
       <div className="breakdown">
         <p>{t("summary.breakdown")}</p>
-        {materials.map((material, index) => <div key={material.id}><span><i className={material.grade} />#{index + 1} {material.prime ? "Prime " : ""}{material.grade === "rare" ? "Rare" : "Epic"} · T{material.tier} · +{material.enhancement}</span><strong>{formatNumber(calculateMaterialPoints(material))} P</strong></div>)}
+        {materials.map((material, index) => (
+          <div key={material.id}>
+            <span><i className={material.grade} />#{index + 1} {material.prime ? "Prime " : ""}{material.grade === "rare" ? "Rare" : "Epic"} · T{material.tier} · +{material.enhancement}</span>
+            <strong>{formatNumber(calculateMaterialPoints(material))} P</strong>
+          </div>
+        ))}
       </div>
     </aside>
   );

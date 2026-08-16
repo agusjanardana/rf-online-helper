@@ -5,6 +5,7 @@ import {
   RARE_POINTS,
   getEnhancementGroup,
 } from "@/src/data/material-conversion-points";
+import { CONVERSION_LEVELS, type ConversionLevel } from "@/src/data/conversion-levels";
 import type { ConversionSummary, MaterialItem } from "@/src/types/material";
 
 export function calculateMaterialPoints(equipment: Omit<MaterialItem, "id">): number {
@@ -18,6 +19,18 @@ export function calculateMaterialPoints(equipment: Omit<MaterialItem, "id">): nu
 
   const table = equipment.prime ? PRIME_EPIC_POINTS : EPIC_POINTS;
   return table[group][equipment.tier as keyof (typeof table)[typeof group]] ?? 0;
+}
+
+export function getConversionLevel(points: number): ConversionLevel | null {
+  const safePoints = Math.max(0, Math.floor(Number.isFinite(points) ? points : 0));
+  const matchedLevel = CONVERSION_LEVELS.find(
+    (entry) => safePoints >= entry.minPoints && safePoints <= entry.maxPoints,
+  );
+
+  if (matchedLevel) return matchedLevel;
+
+  const maximumLevel = CONVERSION_LEVELS.at(-1);
+  return maximumLevel && safePoints > maximumLevel.maxPoints ? maximumLevel : null;
 }
 
 export function summarizeConversion(materials: MaterialItem[]): ConversionSummary {

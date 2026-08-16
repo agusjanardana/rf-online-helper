@@ -70,10 +70,18 @@
   "summary.level": "Conversion level",
   "summary.threshold": "Official thresholds are not public",
   "summary.checkGame": "Check in-game",
+  "summary.levelRange": "{min}–{max} P range",
+  "summary.maxLevel": "Maximum level · table ends at {max} P",
+  "summary.noLevel": "Level 1 not reached",
+  "summary.levelRequirement": "Minimum 40 P",
   "summary.breakdown": "Point breakdown",
   "info.howTitle": "How Material Conversion works",
   "info.howOne": "Material Conversion requires 4–6 Rare-grade or higher Unbound equipment pieces. Every piece contributes points based on grade, tier, Prime status, and enhancement level.",
   "info.howTwo": "The combined points determine the Material Conversion Level in-game. The game can predict six possible results; predictions cost currency and can be repeated. One predicted item is awarded when conversion is performed.",
   "info.rewardTitle": "Special conversion rewards",
-  "info.rewardDescription": "Some Circlet equipment, exclusive collection items, and Memory Chips can only be obtained through Material Conversion."
+  "info.rewardDescription": "Some Circlet equipment, exclusive collection items, and Memory Chips can only be obtained through Material Conversion.",
+  "info.levelTableTitle": "Conversion level table",
+  "info.level": "Level",
+  "info.minimumPoints": "Minimum points",
+  "info.maximumPoints": "Maximum points"
 }
