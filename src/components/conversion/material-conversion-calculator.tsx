@@ -3,10 +3,11 @@
 import { useMemo, useState } from "react";
 import { Boxes, Plus, RotateCcw, Zap } from "lucide-react";
 import { useLanguage } from "@/src/components/i18n/language-provider";
-import { summarizeConversion } from "@/src/lib/material-conversion";
+import { summarizeConversion, type MaterialSuggestion } from "@/src/lib/material-conversion";
 import type { MaterialGrade, MaterialItem } from "@/src/types/material";
 import { ConversionInfo } from "./conversion-info";
 import { ConversionSummary } from "./conversion-summary";
+import { ConversionSuggestions } from "./conversion-suggestions";
 import { MaterialCard } from "./material-card";
 
 function createMaterial(index: number, grade: MaterialGrade = "rare", tier = 1): MaterialItem {
@@ -35,6 +36,10 @@ export function MaterialConversionCalculator() {
     setMaterials((current) => [...current, { ...item, id: crypto.randomUUID() }]);
   }
 
+  function applySuggestion(suggestion: MaterialSuggestion) {
+    setMaterials(Array.from({ length: suggestion.count }, () => ({ ...suggestion.item, id: crypto.randomUUID() })));
+  }
+
   return (
     <section id="conversion" className="conversion-section anchor-offset">
       <div className="conversion-intro">
@@ -45,6 +50,7 @@ export function MaterialConversionCalculator() {
         </div>
         <div className="source-chip"><Zap size={15} /><span>{t("conversion.officialTable")}<strong>{t("conversion.noEstimate")}</strong></span></div>
       </div>
+      <ConversionSuggestions onApply={applySuggestion} />
       <div className="conversion-shell panel">
         <div className="materials-pane">
           <div className="materials-toolbar">
