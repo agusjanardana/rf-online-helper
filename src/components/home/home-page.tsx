@@ -2,11 +2,11 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, Boxes, Gem, ShieldCheck, UserRound } from "lucide-react";
+import { ArrowRight, Boxes, Gem, ShieldCheck, UserRound, Users } from "lucide-react";
 import { useLanguage } from "@/src/components/i18n/language-provider";
 
 export function HomePage() {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   return (
     <section className="home-hero">
       <div className="home-lead">
@@ -22,6 +22,13 @@ export function HomePage() {
         </div>
       </div>
       <div className="tool-grid">
+        <Link className="tool-choice panel" href="/member">
+          <span className="choice-icon"><Users size={24} /></span>
+          <small>GUILD & RAID</small>
+          <h2>{locale === "id" ? "Pembagian Raid" : "Raid Reward Splitter"}</h2>
+          <p>{locale === "id" ? "Cek bagian diamond dan rupiah tanpa login. Pengurus dapat masuk untuk mengelola guild." : "Check diamond and rupiah rewards without signing in. Officers can sign in to manage the guild."}</p>
+          <strong>{t("home.open")} <ArrowRight size={16} /></strong>
+        </Link>
         <Link className="tool-choice panel" href="/diamond-tax">
           <span className="choice-icon"><Gem size={24} /></span>
           <small>{t("home.diamond.eyebrow")}</small>

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Boxes, Gem, House, Languages } from "lucide-react";
+import { Boxes, Gem, House, Languages, Users } from "lucide-react";
 import { useLanguage } from "@/src/components/i18n/language-provider";
 
 export function Header() {
@@ -19,6 +19,7 @@ export function Header() {
         <Link className={pathname === "/" ? "active" : ""} href="/"><House size={15} /> {t("nav.home")}</Link>
         <Link className={pathname === "/diamond-tax" ? "active" : ""} href="/diamond-tax"><Gem size={15} /> {t("nav.diamond")}</Link>
         <Link className={pathname === "/material-conversion" ? "active" : ""} href="/material-conversion"><Boxes size={15} /> {t("nav.conversion")}</Link>
+      <Link className={(pathname.startsWith("/guilds") || pathname === "/member") ? "active" : ""} href="/member"><Users size={15} /> Guild</Link>
       </nav>
       <div className="header-actions">
         <label className="language-select" title={t("language.label")}><Languages size={14} /><select value={locale} onChange={(event) => setLocale(event.target.value as "id" | "en")} aria-label={t("language.label")}><option value="id">ID</option><option value="en">EN</option></select></label>

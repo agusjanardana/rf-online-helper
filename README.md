@@ -1,3 +1,13 @@
+# RF NEXT Helper
+
+Public calculators plus guild management and CP-based raid reward splitting.
+
+## Guild setup
+
+See [Supabase setup](docs/supabase-setup.md) for environment variables, the database migration, username/password login, and testing. Copy `.env.example` to `.env.local` and fill in your Supabase project URL and server-only service-role key.
+
+The implementation plan is in [docs/raid-reward-supabase-plan.md](docs/raid-reward-supabase-plan.md).
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
