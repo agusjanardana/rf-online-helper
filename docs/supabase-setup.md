@@ -26,6 +26,7 @@ Pada project baru, jalankan file berikut **berurutan**, masing-masing sekali, me
 3. `supabase/migrations/202609300003_username_auth.sql`
 4. `supabase/migrations/202609300004_guild_reward_transparency.sql`
 5. `supabase/migrations/202610010005_member_directory.sql`
+6. `supabase/migrations/202610010006_raid_member_visibility.sql`
 
 Jika migration sebelumnya sudah dijalankan, cukup jalankan yang belum diterapkan. Migration pertama/dua merupakan fondasi historis. Migration ketiga memindahkan akun, sesi, serta akses database ke autentikasi aplikasi tanpa Supabase Auth.
 
@@ -120,6 +121,7 @@ psql "$RF_TEST_DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/migrations/202609300
 psql "$RF_TEST_DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/migrations/202609300004_guild_reward_transparency.sql
 psql "$RF_TEST_DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/migrations/202610010005_member_directory.sql
 psql "$RF_TEST_DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/member-directory.sql
+psql "$RF_TEST_DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/migrations/202610010006_raid_member_visibility.sql
 psql "$RF_TEST_DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/username-auth.sql
 psql "$RF_TEST_DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/guild-reward-transparency.sql
 RF_TEST_DATABASE_URL="$RF_TEST_DATABASE_URL" node supabase/tests/concurrency.mjs
@@ -141,3 +143,7 @@ Bootstrap hanya meniru schema historis Supabase untuk menguji migration. Runtime
 ## Troubleshooting pencarian member
 
 Jika hasil pencarian menyebut format database belum diperbarui, terapkan migration 004. Format lama berisi `rows`, sedangkan tampilan seluruh guild membutuhkan `members` dan `raids`. Migration 005 menyediakan daftar nama server/guild untuk pilihan pencarian. Terapkan kedua migration yang belum dijalankan; refresh halaman setelah selesai. Nama server dan guild menjadi data publik, sedangkan akun pengurus tetap privat.
+
+## Pagination dan visibilitas kegiatan
+
+Daftar anggota publik dan daftar kelola anggota menampilkan 10 baris per halaman (pagination di browser; roster tetap dimuat sekali). Riwayat kegiatan pengurus juga menampilkan 10 kegiatan per halaman. Pada riwayat raid, pengurus dapat mencentang **Tampilkan di member**; perubahan disimpan langsung dan dicatat dalam audit. Raid lama dan raid baru secara default tetap dicentang. Hanya raid final yang dicentang dikirim oleh pencarian publik; filter ini diterapkan sebelum pagination 10 raid di database. Pengaturan ini berlaku untuk semua pencarian member dalam guild.

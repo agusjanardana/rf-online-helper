@@ -1,5 +1,6 @@
 "use client";
 
+import { ListPagination, useListPage } from "./list-pagination";
 import Link from "next/link";
 import {
   Search,
@@ -54,6 +55,9 @@ type Result =
 export function MemberLookup() {
   const w = useWords();
   const [result, setResult] = useState<Result | null>(null);
+  const rosterPage = useListPage(
+    result?.status === "found" ? result.members : [],
+  );
   const [search, setSearch] = useState<Search | null>(null);
   const [offset, setOffset] = useState(0);
   const [busy, setBusy] = useState(false);
@@ -95,6 +99,7 @@ export function MemberLookup() {
     setBusy(true);
     setError("");
     setResult(null);
+    rosterPage.setPage(0);
     try {
       const data = await api<Result>("/api/member-rewards", {
         ...query,
@@ -366,7 +371,7 @@ export function MemberLookup() {
                     </tr>
                   </thead>
                   <tbody>
-                    {result.members.map((member, index) => (
+                    {rosterPage.rows.map((member, index) => (
                       <tr
                         key={index}
                         className={
@@ -398,6 +403,7 @@ export function MemberLookup() {
                   </tbody>
                 </table>
               </div>
+              <ListPagination {...rosterPage} />
             </details>
             <h3 className="member-subheading">
               {w("Pembagian raid", "Raid allocations")}

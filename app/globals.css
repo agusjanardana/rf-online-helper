@@ -221,3 +221,21 @@ html,body{background:#f4f2ed;color:#202124}.app-shell{background:radial-gradient
 .member-disclosure-count { border-radius: 20px; padding: 3px 9px; background: #f2ede2; color: #88703d; font-size: 12px; }
 .member-roster-disclosure > p { font-size: 13px; }
 @media(prefers-reduced-motion: reduce) { .member-disclosure-arrow { transition: none; } }
+
+.raid-selection-toolbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; padding: 16px; border: 1px solid #e2dccf; background: #f8f6f0; border-radius: 10px; }
+.raid-selection-toolbar strong { color: #514728; font-size: 15px; }
+.raid-selection-toolbar p, .guild-shell .raid-selection-note { font-size: 12px; margin: 6px 0 0; }
+.raid-selection-wrap { border: 1px solid #e5e2dc; border-radius: 10px; }
+.raid-selection-table { min-width: 620px; }
+.raid-selection-table caption { text-align: left; padding: 14px 16px; color: #77736b; font-size: 12px; }
+.raid-selection-table th { background: #f8f7f3; font-size: 12px; }
+.raid-selection-table th:first-child, .raid-selection-table td:first-child { width: 64px; min-width: 64px; text-align: center; }
+.raid-selection-table label { cursor: pointer; display: block; padding: 6px 0; font-weight: 600; }
+.raid-selection-table td { font-variant-numeric: tabular-nums; }
+.raid-selection-table tr.raid-participant-selected { background: #fff7e0; }
+.raid-selection-table input:disabled { opacity: .4; cursor: not-allowed; }
+.raid-unlock-participants { margin-top: 16px; padding: 0 14px; background: #f8f6f0; border: 1px solid #e2dccf; border-radius: 9px; }
+.raid-selection-table td input[type=checkbox] { min-width: 18px !important; width: 18px; height: 18px; }
+.raid-participant-pagination { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; color: #77736b; font-size: 12px; }
+.raid-participant-pagination .guild-links { gap: 8px; }
+@media(max-width: 480px) { .raid-participant-pagination .guild-links { width: 100%; justify-content: space-between; } .raid-participant-pagination button { padding: 9px 11px; font-size: 12px; } }

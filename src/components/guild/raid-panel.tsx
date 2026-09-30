@@ -32,6 +32,27 @@ export function RaidPanel({
   const [selected, setSelected] = useState(
     data.participants.map((p) => p.character_id),
   );
+  const [participantQuery, setParticipantQuery] = useState("");
+  const [participantPage, setParticipantPage] = useState(0);
+  const participantPageSize = 10;
+  const filteredCharacters = guild.characters.filter((c) =>
+    c.name
+      .toLocaleLowerCase()
+      .includes(participantQuery.trim().toLocaleLowerCase()),
+  );
+  const participantPages = Math.max(
+    1,
+    Math.ceil(filteredCharacters.length / participantPageSize),
+  );
+  const currentParticipantPage = Math.min(
+    participantPage,
+    participantPages - 1,
+  );
+  const participantStart = currentParticipantPage * participantPageSize;
+  const visibleCharacters = filteredCharacters.slice(
+    participantStart,
+    participantStart + participantPageSize,
+  );
   const tiers = guild.rules[0]?.guild_tier_rules ?? [];
   const call = (action: string, payload: Record<string, unknown> = {}) =>
     command(action, { raid_id: raid.id, version: raid.version, ...payload });
@@ -212,35 +233,209 @@ export function RaidPanel({
                 await call("participants", { ids: selected });
               }}
             >
-              <div className="guild-roster">
-                {guild.characters
-                  .filter((c) => c.active || selected.includes(c.id))
-                  .map((c) => (
-                    <label className="guild-check" key={c.id}>
-                      <input
-                        type="checkbox"
-                        checked={selected.includes(c.id)}
-                        onChange={(e) =>
-                          setSelected((old) =>
-                            e.target.checked
-                              ? [...old, c.id]
-                              : old.filter((id) => id !== c.id),
-                          )
-                        }
-                      />
-                      <span>
-                        {c.name}
-                        <small>
-                          CP {c.cp?.toLocaleString() ?? "—"} ·{" "}
-                          {tierForCp(c.cp, tiers)
-                            ? `T${tierForCp(c.cp, tiers)!.tier}`
-                            : "—"}
-                          {!c.active ? ` · ${w("Arsip", "Archived")}` : ""}
-                        </small>
-                      </span>
-                    </label>
-                  ))}
+              <div className="raid-selection-toolbar">
+                <div>
+                  <strong>
+                    {selected.length} {w("anggota dipilih", "members selected")}
+                  </strong>
+                  <p>
+                    {w(
+                      "Centang anggota yang ikut raid, simpan pilihan, lalu kunci CP dan peserta.",
+                      "Check the members joining this raid, save your selection, then lock CP and participants.",
+                    )}
+                  </p>
+                </div>
+                <div className="guild-links">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setSelected(
+                        guild.characters
+                          .filter((c) => c.active)
+                          .map((c) => c.id),
+                      )
+                    }
+                  >
+                    {w(
+                      "Pilih semua anggota aktif",
+                      "Select all active members",
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    disabled={!selected.length}
+                    onClick={() => setSelected([])}
+                  >
+                    {w("Hapus pilihan", "Clear selection")}
+                  </button>
+                </div>
               </div>
+              <Field label={w("Cari nama anggota", "Search member name")}>
+                <input
+                  type="search"
+                  value={participantQuery}
+                  placeholder={w(
+                    "Ketik nama karakter…",
+                    "Type a character name…",
+                  )}
+                  onChange={(event) => {
+                    setParticipantQuery(event.target.value);
+                    setParticipantPage(0);
+                  }}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") event.preventDefault();
+                  }}
+                />
+              </Field>
+              <p className="raid-selection-note">
+                {w(
+                  "Pilihan tetap tersimpan saat berpindah halaman. Pilih semua dan hapus pilihan berlaku untuk seluruh halaman, termasuk di luar hasil pencarian.",
+                  "Selections persist across pages. Select all and clear selection apply across all pages, including outside the search results.",
+                )}
+              </p>
+              <div className="guild-table-wrap raid-selection-wrap">
+                <table className="guild-table raid-selection-table">
+                  <caption>
+                    {w(
+                      "Seluruh anggota guild · centang yang ikut raid",
+                      "All guild members · check those joining the raid",
+                    )}
+                  </caption>
+                  <thead>
+                    <tr>
+                      <th>{w("Ikut", "Join")}</th>
+                      <th>{w("Nama anggota", "Member name")}</th>
+                      <th>CP</th>
+                      <th>Tier</th>
+                      <th>{w("Bobot", "Weight")}</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {visibleCharacters.map((c) => {
+                      const tier = tierForCp(c.cp, tiers);
+                      const checked = selected.includes(c.id);
+                      return (
+                        <tr
+                          key={c.id}
+                          className={
+                            checked ? "raid-participant-selected" : undefined
+                          }
+                        >
+                          <td>
+                            <input
+                              id={`participant-${c.id}`}
+                              type="checkbox"
+                              aria-label={`${w("Ikut raid", "Join raid")}: ${c.name}`}
+                              checked={checked}
+                              disabled={!c.active && !checked}
+                              onChange={(event) =>
+                                setSelected((old) =>
+                                  event.target.checked
+                                    ? [...old, c.id]
+                                    : old.filter((id) => id !== c.id),
+                                )
+                              }
+                            />
+                          </td>
+                          <td>
+                            <label htmlFor={`participant-${c.id}`}>
+                              {c.name}
+                            </label>
+                            {c.is_officer && (
+                              <small>
+                                {w("T0 · Pengurus", "T0 · Officer")}
+                              </small>
+                            )}
+                          </td>
+                          <td>
+                            {c.cp?.toLocaleString() ??
+                              w("Belum diisi", "Not set")}
+                          </td>
+                          <td>{tier ? `T${tier.tier}` : "—"}</td>
+                          <td>{tier ? (tier.weight / 100).toFixed(2) : "—"}</td>
+                          <td>
+                            {!c.active
+                              ? w("Diarsipkan", "Archived")
+                              : checked
+                                ? w("Ikut raid", "Joining")
+                                : w("Tidak ikut", "Not joining")}
+                            {c.active && !tier && (
+                              <small>
+                                {w(
+                                  "Lengkapi CP / aturan tier sebelum dikunci",
+                                  "Complete CP / tier rules before locking",
+                                )}
+                              </small>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                    {!filteredCharacters.length && (
+                      <tr>
+                        <td colSpan={6}>
+                          {guild.characters.length
+                            ? w(
+                                "Tidak ada anggota yang cocok dengan pencarian.",
+                                "No members match your search.",
+                              )
+                            : w(
+                                "Belum ada anggota. Tambahkan anggota di halaman guild terlebih dahulu.",
+                                "No members yet. Add members on the guild page first.",
+                              )}
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+              <nav
+                className="raid-participant-pagination"
+                aria-label={w("Halaman anggota raid", "Raid member pages")}
+              >
+                <span role="status">
+                  {filteredCharacters.length ? participantStart + 1 : 0}–
+                  {Math.min(
+                    participantStart + participantPageSize,
+                    filteredCharacters.length,
+                  )}{" "}
+                  {w("dari", "of")} {filteredCharacters.length}{" "}
+                  {w("anggota", "members")}
+                </span>
+                <div className="guild-links">
+                  <button
+                    type="button"
+                    disabled={currentParticipantPage === 0}
+                    onClick={() =>
+                      setParticipantPage(currentParticipantPage - 1)
+                    }
+                  >
+                    {w("Sebelumnya", "Previous")}
+                  </button>
+                  <span>
+                    {w("Halaman", "Page")} {currentParticipantPage + 1} /{" "}
+                    {participantPages}
+                  </span>
+                  <button
+                    type="button"
+                    disabled={currentParticipantPage + 1 >= participantPages}
+                    onClick={() =>
+                      setParticipantPage(currentParticipantPage + 1)
+                    }
+                  >
+                    {w("Berikutnya", "Next")}
+                  </button>
+                </div>
+              </nav>
+              {guild.characters.some((c) => !c.active) && (
+                <p className="raid-selection-note">
+                  {w(
+                    "Anggota arsip tetap ditampilkan. Aktifkan kembali di halaman anggota sebelum mengikutkannya dalam raid.",
+                    "Archived members remain visible. Reactivate them on the members page before including them in the raid.",
+                  )}
+                </p>
+              )}
             </ActionForm>
             <ActionForm
               submit={w("Kunci CP & peserta", "Lock CP & participants")}
@@ -291,10 +486,16 @@ export function RaidPanel({
           </div>
         )}
         {canEdit && raid.status === "locked" && (
-          <details>
+          <details className="raid-unlock-participants">
             <summary>
               {w("Buka kembali peserta", "Unlock participants")}
             </summary>
+            <p>
+              {w(
+                "Peserta dan CP sudah dikunci. Buka kunci dengan alasan untuk kembali ke tabel pilihan seluruh anggota.",
+                "Participants and CP are locked. Unlock with a reason to return to the full member selection table.",
+              )}
+            </p>
             <ActionForm
               submit={w("Buka kunci", "Unlock")}
               onSubmit={async (f) => {

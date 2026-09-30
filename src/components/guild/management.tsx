@@ -1,4 +1,5 @@
 "use client";
+import { ListPagination, useListPage } from "./list-pagination";
 import { useState } from "react";
 import type { Character, GuildData } from "@/src/lib/raid/types";
 import { MAX_VALUE, tierForCp } from "@/src/lib/raid/calculation";
@@ -14,6 +15,7 @@ export function MembersPanel({
 }) {
   const w = useWords();
   const [editing, setEditing] = useState<Character | null>(null);
+  const rosterPage = useListPage(data.characters);
   const tiers = data.rules[0]?.guild_tier_rules ?? [];
   return (
     <>
@@ -37,7 +39,7 @@ export function MembersPanel({
               </tr>
             </thead>
             <tbody>
-              {data.characters.map((c) => (
+              {rosterPage.rows.map((c) => (
                 <tr key={c.id}>
                   <td>
                     {c.name}
@@ -66,6 +68,7 @@ export function MembersPanel({
             </tbody>
           </table>
         </div>
+        <ListPagination {...rosterPage} />
         {!data.characters.length && (
           <p>{w("Belum ada karakter.", "No characters yet.")}</p>
         )}

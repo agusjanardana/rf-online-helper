@@ -1,4 +1,5 @@
 "use client";
+import { ListPagination, useListPage } from "./list-pagination";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -26,6 +27,9 @@ export function GuildApp({
   const raidId = path[2];
   const [guilds, setGuilds] = useState<Guild[]>([]);
   const [data, setData] = useState<GuildData | null>(null);
+  const raidPage = useListPage(data?.raids ?? []);
+  const [visibilityBusy, setVisibilityBusy] = useState(false);
+  const [visibilityError, setVisibilityError] = useState("");
   const [raidData, setRaidData] = useState<RaidData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -253,21 +257,70 @@ export function GuildApp({
                       )}
                     </p>
                   )}
-                  {data.raids.map((r) => (
-                    <Link
-                      className="guild-list-row"
-                      key={r.id}
-                      href={`${root}/raids/${r.id}`}
-                    >
-                      <strong>
-                        {r.name}
-                        {r.revision_of ? " · revision" : ""}
-                      </strong>
-                      <span>
-                        {r.raid_date} · {r.status}
-                      </span>
-                    </Link>
+                  <p>
+                    {w(
+                      "Centang kegiatan yang ingin ditampilkan di halaman member. Hanya raid final yang dapat dilihat member.",
+                      "Check activities to display on the member page. Members can only view finalized raids.",
+                    )}
+                  </p>
+                  {visibilityError && (
+                    <p className="guild-error" role="alert">
+                      {visibilityError}
+                    </p>
+                  )}
+                  {raidPage.rows.map((r) => (
+                    <div className="guild-list-row" key={r.id}>
+                      <Link href={`${root}/raids/${r.id}`}>
+                        <strong>
+                          {r.name}
+                          {r.revision_of ? " · revision" : ""}
+                        </strong>
+                        <small>
+                          {r.raid_date} · {r.status}
+                        </small>
+                      </Link>
+                      {data.role !== "member" && (
+                        <label className="guild-check">
+                          <input
+                            type="checkbox"
+                            checked={r.member_visible ?? true}
+                            disabled={
+                              visibilityBusy || r.member_visible === undefined
+                            }
+                            onChange={async (event) => {
+                              const visible = event.target.checked;
+                              setVisibilityBusy(true);
+                              setVisibilityError("");
+                              try {
+                                await command("raid_member_visibility", {
+                                  raid_id: r.id,
+                                  member_visible: visible,
+                                });
+                              } catch (error) {
+                                setVisibilityError(
+                                  error instanceof Error
+                                    ? error.message
+                                    : "Request failed",
+                                );
+                              } finally {
+                                setVisibilityBusy(false);
+                              }
+                            }}
+                          />
+                          {w("Tampilkan di member", "Show on member page")}
+                        </label>
+                      )}
+                    </div>
                   ))}
+                  {data.raids.some((r) => r.member_visible === undefined) && (
+                    <p className="guild-notice">
+                      {w(
+                        "Terapkan migration 006 untuk mengatur kegiatan yang tampil di halaman member.",
+                        "Apply migration 006 to control activities shown on the member page.",
+                      )}
+                    </p>
+                  )}
+                  <ListPagination {...raidPage} />
                 </div>
                 {data.role !== "member" && (
                   <details className="panel guild-card">

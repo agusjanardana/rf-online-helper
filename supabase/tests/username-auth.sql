@@ -34,6 +34,13 @@ begin
  result:=public.staff_gateway(repeat('a',64),'raid',jsonb_build_object('guild_id',g,'raid_id',raid));
  assert jsonb_array_length(result->'allocations')=2;
  assert public.lookup_member_rewards('Solo Member','Anka 3','Username Guild')#>>'{raids,0,participants,0,diamond}'='12000';
+ perform pg_temp.expect_failure(format('select public.staff_gateway(%L,''command'',%L::jsonb)',repeat('b',64),jsonb_build_object('action','raid_member_visibility','payload',jsonb_build_object('guild_id',g,'raid_id',raid,'member_visible',false))));
+ perform public.staff_gateway(repeat('a',64),'command',jsonb_build_object('action','raid_member_visibility','payload',jsonb_build_object('guild_id',g,'raid_id',raid,'member_visible',false)));
+ assert public.lookup_member_rewards('Solo Member','Anka 3','Username Guild')->'raids'='[]'::jsonb;
+ assert jsonb_array_length(public.lookup_member_rewards('Solo Member','Anka 3','Username Guild')->'members')=1;
+ perform public.staff_gateway(repeat('a',64),'command',jsonb_build_object('action','raid_member_visibility','payload',jsonb_build_object('guild_id',g,'raid_id',raid,'member_visible',true)));
+ assert public.lookup_member_rewards('Solo Member','Anka 3','Username Guild')#>>'{raids,0,participants,0,diamond}'='12000';
+
  perform pg_temp.expect_failure(format('select public.staff_gateway(%L,''command'',%L::jsonb)',repeat('a',64),jsonb_build_object('action','invite','payload',jsonb_build_object('guild_id',g,'username','test_officer','role','member'))));
  result:=public.staff_gateway(repeat('a',64),'command',jsonb_build_object('action','invite','payload',jsonb_build_object('guild_id',g,'username','TEST_OFFICER','role','officer'))); invitation:=result->>'token';
  perform pg_temp.expect_failure(format('select public.staff_gateway(%L,''command'',%L::jsonb)',repeat('a',64),jsonb_build_object('action','accept_invite','payload',jsonb_build_object('token',invitation))));

@@ -32,6 +32,7 @@ export interface RuleVersion {
   guild_tier_rules: Tier[];
 }
 export interface Raid {
+  member_visible?: boolean;
   id: string;
   guild_id: string;
   name: string;
