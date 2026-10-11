@@ -11,7 +11,13 @@ type Share = {
   idr: number;
 };
 
-export function RewardFormula({ participants }: { participants?: Share[] }) {
+export function RewardFormula({
+  participants,
+  context = "member",
+}: {
+  participants?: Share[];
+  context?: "member" | "settings";
+}) {
   const w = useWords();
   const totalWeight =
     participants?.reduce((sum, row) => sum + row.weight, 0) ?? 0;
@@ -84,15 +90,30 @@ export function RewardFormula({ participants }: { participants?: Share[] }) {
       </details>
     );
   return (
-    <aside className="member-formula" aria-labelledby="member-formula-title">
+    <aside
+      className={`member-formula${context === "settings" ? " guild-settings-formula" : ""}`}
+      aria-labelledby={`${context}-formula-title`}
+    >
       <div className="member-section-title">
         <span className="member-icon">
           <Calculator size={20} aria-hidden="true" />
         </span>
         <div>
-          <span className="eyebrow">{w("TRANSPARANSI", "TRANSPARENCY")}</span>
-          <h2 id="member-formula-title">
-            {w("Bagaimana bagian dihitung?", "How are rewards calculated?")}
+          <span className="eyebrow">
+            {context === "settings"
+              ? w("PANDUAN PEMBAGIAN", "ALLOCATION GUIDE")
+              : w("TRANSPARANSI", "TRANSPARENCY")}
+          </span>
+          <h2 id={`${context}-formula-title`}>
+            {context === "settings"
+              ? w(
+                  "Cara bobot menjadi pembagian Diamond",
+                  "How weights become Diamond allocations",
+                )
+              : w(
+                  "Bagaimana bagian dihitung?",
+                  "How are rewards calculated?",
+                )}
           </h2>
         </div>
       </div>
@@ -147,10 +168,15 @@ export function RewardFormula({ participants }: { participants?: Share[] }) {
       <p className="member-formula-example">
         <strong>{w("Contoh", "Example")}:</strong> 12.000 diamond × (1,50 ÷
         4,00) = <strong>4.500 diamond</strong>.{" "}
-        {w(
-          "Bobot di contoh hanya ilustrasi; perhitungan tiap raid tersedia pada hasil pencarian.",
-          "These example weights are illustrative; each raid’s calculation is available in the search results.",
-        )}
+        {context === "settings"
+          ? w(
+              "Bobot di contoh hanya ilustrasi. Aturan yang aktif disalin menjadi snapshot saat raid dikunci, sehingga perubahan berikutnya tidak mengubah pembagian raid lama.",
+              "These example weights are illustrative. Active rules are saved as a snapshot when a raid is locked, so later changes do not alter previous raid allocations.",
+            )
+          : w(
+              "Bobot di contoh hanya ilustrasi; perhitungan tiap raid tersedia pada hasil pencarian.",
+              "These example weights are illustrative; each raid’s calculation is available in the search results.",
+            )}
       </p>
     </aside>
   );

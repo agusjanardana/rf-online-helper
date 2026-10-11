@@ -1,10 +1,12 @@
 "use client";
 import { ListPagination, useListPage } from "./list-pagination";
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { Search, X } from "lucide-react";
 import type { Character, GuildData } from "@/src/lib/raid/types";
 import { MAX_VALUE, tierForCp } from "@/src/lib/raid/calculation";
 import type { Command } from "./guild-app";
 import { ActionForm, Field, numberValue, useWords, value } from "./ui";
+import { RewardFormula } from "./reward-formula";
 
 export function MembersPanel({
   data,
@@ -15,18 +17,70 @@ export function MembersPanel({
 }) {
   const w = useWords();
   const [editing, setEditing] = useState<Character | null>(null);
-  const rosterPage = useListPage(data.characters);
+  const [search, setSearch] = useState("");
+  const filteredCharacters = useMemo(() => {
+    const query = search.trim().toLocaleLowerCase();
+    if (!query) return data.characters;
+    return data.characters.filter((character) =>
+      character.name.toLocaleLowerCase().includes(query),
+    );
+  }, [data.characters, search]);
+  const rosterPage = useListPage(filteredCharacters);
   const tiers = data.rules[0]?.guild_tier_rules ?? [];
   return (
     <>
       <div className="panel guild-card">
-        <h2>{w("Daftar karakter", "Character roster")}</h2>
-        <p>
-          {w(
-            "Member cukup mencari nama karakter, server, dan guild tanpa akun. Label T0 tidak menambah bobot pembagian.",
-            "Members look up their character, server, and guild without an account. The T0 label does not increase reward weight.",
-          )}
-        </p>
+        <div className="guild-roster-heading">
+          <div>
+            <h2>{w("Daftar karakter", "Character roster")}</h2>
+            <p>
+              {w(
+                "Member cukup mencari nama karakter, server, dan guild tanpa akun. Label T0 tidak menambah bobot pembagian.",
+                "Members look up their character, server, and guild without an account. The T0 label does not increase reward weight.",
+              )}
+            </p>
+          </div>
+          <label className="guild-player-search">
+            <span className="sr-only">
+              {w("Cari nama player", "Search player name")}
+            </span>
+            <Search aria-hidden="true" />
+            <input
+              type="search"
+              value={search}
+              onChange={(event) => {
+                setSearch(event.target.value);
+                rosterPage.setPage(0);
+              }}
+              placeholder={w("Cari nama player…", "Search player name…")}
+              autoComplete="off"
+            />
+            {search && (
+              <button
+                type="button"
+                className="guild-search-clear"
+                onClick={() => {
+                  setSearch("");
+                  rosterPage.setPage(0);
+                }}
+                aria-label={w("Hapus pencarian", "Clear search")}
+              >
+                <X aria-hidden="true" />
+              </button>
+            )}
+          </label>
+        </div>
+        <div className="guild-roster-meta" aria-live="polite">
+          {search.trim()
+            ? w(
+                `${filteredCharacters.length} dari ${data.characters.length} karakter ditemukan`,
+                `${filteredCharacters.length} of ${data.characters.length} characters found`,
+              )
+            : w(
+                `${data.characters.length} karakter`,
+                `${data.characters.length} characters`,
+              )}
+        </div>
         <div className="guild-table-wrap">
           <table className="guild-table">
             <thead>
@@ -71,6 +125,27 @@ export function MembersPanel({
         <ListPagination {...rosterPage} />
         {!data.characters.length && (
           <p>{w("Belum ada karakter.", "No characters yet.")}</p>
+        )}
+        {!!data.characters.length && !filteredCharacters.length && (
+          <div className="guild-search-empty" role="status">
+            <Search aria-hidden="true" />
+            <strong>{w("Player tidak ditemukan", "Player not found")}</strong>
+            <p>
+              {w(
+                `Tidak ada nama yang cocok dengan “${search.trim()}”.`,
+                `No name matches “${search.trim()}”.`,
+              )}
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                setSearch("");
+                rosterPage.setPage(0);
+              }}
+            >
+              {w("Hapus pencarian", "Clear search")}
+            </button>
+          </div>
         )}
       </div>
       {data.role !== "member" && (
@@ -234,6 +309,7 @@ export function SettingsPanel({
           )}
         </p>
       </div>
+      <RewardFormula context="settings" />
       {owner && (
         <>
           <div className="panel guild-card">

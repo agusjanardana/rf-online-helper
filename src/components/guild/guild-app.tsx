@@ -3,6 +3,7 @@ import { ListPagination, useListPage } from "./list-pagination";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { LayoutDashboard, Settings2, Swords, UsersRound } from "lucide-react";
 import { api } from "@/src/lib/guild-api";
 import type { Guild, GuildData, RaidData } from "@/src/lib/raid/types";
 import { ActionForm, Field, useWords, value } from "./ui";
@@ -124,13 +125,44 @@ export function GuildApp({
         </div>
       </div>
       {guildId && (
-        <nav className="guild-tabs">
-          <Link href={root}>{w("Ringkasan", "Overview")}</Link>
-          <Link href={`${root}/members`}>{w("Anggota", "Members")}</Link>
-          <Link href={`${root}/settings`}>
+        <nav
+          className="guild-tabs"
+          aria-label={w("Navigasi guild", "Guild navigation")}
+        >
+          <Link
+            className={tab === "overview" ? "active" : undefined}
+            href={root}
+            aria-current={tab === "overview" ? "page" : undefined}
+          >
+            <LayoutDashboard aria-hidden="true" />
+            <span>{w("Ringkasan", "Overview")}</span>
+          </Link>
+          <Link
+            className={tab === "members" ? "active" : undefined}
+            href={`${root}/members`}
+            aria-current={tab === "members" ? "page" : undefined}
+          >
+            <UsersRound aria-hidden="true" />
+            <span>{w("Anggota", "Members")}</span>
+            {data && <small>{data.characters.length}</small>}
+          </Link>
+          <Link
+            className={tab === "settings" ? "active" : undefined}
+            href={`${root}/settings`}
+            aria-current={tab === "settings" ? "page" : undefined}
+          >
+            <Settings2 aria-hidden="true" />
             {w("Aturan & akses", "Rules & access")}
           </Link>
-          <Link href={`${root}/raids`}>Raid</Link>
+          <Link
+            className={tab === "raids" ? "active" : undefined}
+            href={`${root}/raids`}
+            aria-current={tab === "raids" ? "page" : undefined}
+          >
+            <Swords aria-hidden="true" />
+            <span>Raid</span>
+            {data && <small>{data.raids.length}</small>}
+          </Link>
         </nav>
       )}
       {error ? (
