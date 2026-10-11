@@ -252,7 +252,7 @@ html,body{background:#f4f2ed;color:#202124}.app-shell{background:radial-gradient
 .raid-selection-toolbar strong { color: #514728; font-size: 15px; }
 .raid-selection-toolbar p, .guild-shell .raid-selection-note { font-size: 12px; margin: 6px 0 0; }
 .raid-selection-wrap { border: 1px solid #e5e2dc; border-radius: 10px; }
-.raid-selection-table { min-width: 620px; }
+.raid-selection-table { min-width: 850px; }
 .raid-selection-table caption { text-align: left; padding: 14px 16px; color: #77736b; font-size: 12px; }
 .raid-selection-table th { background: #f8f7f3; font-size: 12px; }
 .raid-selection-table th:first-child, .raid-selection-table td:first-child { width: 64px; min-width: 64px; text-align: center; }
@@ -260,8 +260,20 @@ html,body{background:#f4f2ed;color:#202124}.app-shell{background:radial-gradient
 .raid-selection-table td { font-variant-numeric: tabular-nums; }
 .raid-selection-table tr.raid-participant-selected { background: #fff7e0; }
 .raid-selection-table input:disabled { opacity: .4; cursor: not-allowed; }
+.raid-estimate-help { display: block; margin-top: 7px; color: #897a5d; font-size: 11px; }
+.raid-estimate-warning { margin: 14px 0 !important; font-size: 12px; }
+.guild-shell .raid-estimate { position: relative; justify-content: flex-start; gap: 5px; min-width: max-content; padding: 5px 7px; border: 0; border-radius: 6px; background: transparent; color: #725719; font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.guild-shell .raid-estimate:hover,.guild-shell .raid-estimate:focus-visible { background: #efe4c9; }
+.raid-estimate > svg { color: #9b8350; flex-shrink: 0; }
+.raid-estimate-tooltip { position: absolute; z-index: 40; top: 50%; right: calc(100% + 9px); width: min(310px,70vw); display: grid; gap: 7px; padding: 13px 14px; border: 1px solid #d5c7a9; border-radius: 9px; background: #292820; color: #f8f4e9; box-shadow: 0 12px 32px rgba(40,35,24,.24); text-align: left; line-height: 1.45; opacity: 0; visibility: hidden; pointer-events: none; transform: translate(4px,-50%); transition: opacity .15s ease,transform .15s ease,visibility .15s; }
+.raid-estimate-tooltip::after { content: ''; position: absolute; left: 100%; top: 50%; border: 6px solid transparent; border-left-color: #292820; transform: translateY(-50%); }
+.raid-estimate-tooltip small { margin: 0; color: #cdbb94; font-size: 9px; text-transform: uppercase; letter-spacing: .08em; }
+.raid-estimate-tooltip strong { color: #fff; font-size: 12px; overflow-wrap: anywhere; }
+.raid-estimate-tooltip span { color: #d2cec4; font-size: 10px; font-weight: 400; }
+.raid-estimate:hover .raid-estimate-tooltip,.raid-estimate:focus-visible .raid-estimate-tooltip { opacity: 1; visibility: visible; transform: translate(0,-50%); }
 .raid-unlock-participants { margin-top: 16px; padding: 0 14px; background: #f8f6f0; border: 1px solid #e2dccf; border-radius: 9px; }
 .raid-selection-table td input[type=checkbox] { min-width: 18px !important; width: 18px; height: 18px; }
 .raid-participant-pagination { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; color: #77736b; font-size: 12px; }
 .raid-participant-pagination .guild-links { gap: 8px; }
 @media(max-width: 480px) { .raid-participant-pagination .guild-links { width: 100%; justify-content: space-between; } .raid-participant-pagination button { padding: 9px 11px; font-size: 12px; } }
+@media(max-width: 700px) { .raid-estimate-tooltip { position: fixed; top: auto; right: 16px; bottom: 16px; left: 16px; width: auto; transform: translateY(6px); } .raid-estimate-tooltip::after { display: none; } .raid-estimate:hover .raid-estimate-tooltip,.raid-estimate:focus-visible .raid-estimate-tooltip { transform: translateY(0); } }

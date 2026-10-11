@@ -1,7 +1,8 @@
 "use client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useId, useState } from "react";
+import { Info } from "lucide-react";
 import type { Currency, GuildData, Raid, RaidData } from "@/src/lib/raid/types";
 import {
   balance,
@@ -12,6 +13,56 @@ import {
 } from "@/src/lib/raid/calculation";
 import type { Command } from "./guild-app";
 import { ActionForm, Field, numberValue, useWords, value } from "./ui";
+
+function DraftEstimate({
+  total,
+  weight,
+  totalWeight,
+  currency,
+  name,
+}: {
+  total: number;
+  weight: number;
+  totalWeight: number;
+  currency: Currency;
+  name: string;
+}) {
+  const w = useWords();
+  const tooltipId = useId();
+  const amount = Number(
+    (BigInt(total) * BigInt(weight)) / BigInt(totalWeight),
+  );
+  const ideal = (total * weight) / totalWeight;
+  const unit = currency === "idr" ? "Rp" : "Diamond";
+  const formula = `${total.toLocaleString()} × (${(weight / 100).toFixed(2)} ÷ ${(totalWeight / 100).toFixed(2)}) = ${ideal.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+  return (
+    <button
+      type="button"
+      className="raid-estimate"
+      aria-describedby={tooltipId}
+      aria-label={`${name}: ${amount.toLocaleString()} ${unit}`}
+      title={formula}
+    >
+      <span>
+        ≈ {currency === "idr" && "Rp "}
+        {amount.toLocaleString()}
+      </span>
+      <Info size={14} aria-hidden="true" />
+      <span className="raid-estimate-tooltip" id={tooltipId} role="tooltip">
+        <small>
+          {name} · {w("Rumus estimasi", "Estimate formula")} · {unit}
+        </small>
+        <strong>{formula}</strong>
+        <span>
+          {w(
+            `Dibulatkan ke bawah menjadi ${amount.toLocaleString()}. Sisa +1 baru ditentukan saat peserta dikunci.`,
+            `Rounded down to ${amount.toLocaleString()}. Any +1 remainder is determined when participants are locked.`,
+          )}
+        </span>
+      </span>
+    </button>
+  );
+}
 
 export function RaidPanel({
   guild,
@@ -54,6 +105,29 @@ export function RaidPanel({
     participantStart + participantPageSize,
   );
   const tiers = guild.rules[0]?.guild_tier_rules ?? [];
+  const draftParticipants = selected.flatMap((characterId, index) => {
+    const character = guild.characters.find((c) => c.id === characterId);
+    const tier = character ? tierForCp(character.cp, tiers) : null;
+    if (!character?.active || !tier) return [];
+    return [
+      {
+        character_id: character.id,
+        name: character.name,
+        cp: character.cp,
+        tier: tier.tier,
+        weight: tier.weight,
+        tie_order: index + 1,
+      },
+    ];
+  });
+  const weightedParticipants =
+    raid.status === "draft" ? draftParticipants : data.participants;
+  const totalParticipantWeight = weightedParticipants.reduce(
+    (sum, participant) => sum + (participant.weight ?? 0),
+    0,
+  );
+  const incompleteSelected =
+    raid.status === "draft" ? selected.length - draftParticipants.length : 0;
   const call = (action: string, payload: Record<string, unknown> = {}) =>
     command(action, { raid_id: raid.id, version: raid.version, ...payload });
   const names = new Map(data.participants.map((p) => [p.character_id, p.name]));
@@ -214,7 +288,21 @@ export function RaidPanel({
           </div>
           <div className="guild-stat">
             <small>{w("Peserta", "Participants")}</small>
-            <strong>{data.participants.length}</strong>
+            <strong>
+              {raid.status === "draft"
+                ? selected.length
+                : data.participants.length}
+            </strong>
+          </div>
+          <div className="guild-stat">
+            <small>
+              {w("Total bobot peserta", "Total participant weight")}
+            </small>
+            <strong>
+              {totalParticipantWeight
+                ? (totalParticipantWeight / 100).toFixed(2)
+                : "—"}
+            </strong>
           </div>
         </div>
         {calculationError && (
@@ -244,6 +332,12 @@ export function RaidPanel({
                       "Check the members joining this raid, save your selection, then lock CP and participants.",
                     )}
                   </p>
+                  <small className="raid-estimate-help">
+                    {w(
+                      "Estimasi mengikuti pilihan saat ini. Arahkan ke nominal untuk melihat rumus per anggota.",
+                      "Estimates follow the current selection. Hover a value to see each member’s formula.",
+                    )}
+                  </small>
                 </div>
                 <div className="guild-links">
                   <button
@@ -293,6 +387,14 @@ export function RaidPanel({
                   "Selections persist across pages. Select all and clear selection apply across all pages, including outside the search results.",
                 )}
               </p>
+              {incompleteSelected > 0 && (
+                <p className="guild-notice raid-estimate-warning" role="status">
+                  {w(
+                    `${incompleteSelected} peserta yang dipilih belum memiliki CP/tier valid, sehingga belum masuk total bobot dan estimasi.`,
+                    `${incompleteSelected} selected participants do not have a valid CP/tier yet, so they are not included in the total weight or estimates.`,
+                  )}
+                </p>
+              )}
               <div className="guild-table-wrap raid-selection-wrap">
                 <table className="guild-table raid-selection-table">
                   <caption>
@@ -308,6 +410,8 @@ export function RaidPanel({
                       <th>CP</th>
                       <th>Tier</th>
                       <th>{w("Bobot", "Weight")}</th>
+                      <th>{w("Est. Diamond", "Est. Diamond")}</th>
+                      <th>{w("Est. Rupiah", "Est. Rupiah")}</th>
                       <th>Status</th>
                     </tr>
                   </thead>
@@ -355,6 +459,32 @@ export function RaidPanel({
                           <td>{tier ? `T${tier.tier}` : "—"}</td>
                           <td>{tier ? (tier.weight / 100).toFixed(2) : "—"}</td>
                           <td>
+                            {checked && tier && totalParticipantWeight ? (
+                              <DraftEstimate
+                                total={totals.diamond}
+                                weight={tier.weight}
+                                totalWeight={totalParticipantWeight}
+                                currency="diamond"
+                                name={c.name}
+                              />
+                            ) : (
+                              "—"
+                            )}
+                          </td>
+                          <td>
+                            {checked && tier && totalParticipantWeight ? (
+                              <DraftEstimate
+                                total={totals.idr}
+                                weight={tier.weight}
+                                totalWeight={totalParticipantWeight}
+                                currency="idr"
+                                name={c.name}
+                              />
+                            ) : (
+                              "—"
+                            )}
+                          </td>
+                          <td>
                             {!c.active
                               ? w("Diarsipkan", "Archived")
                               : checked
@@ -374,7 +504,7 @@ export function RaidPanel({
                     })}
                     {!filteredCharacters.length && (
                       <tr>
-                        <td colSpan={6}>
+                        <td colSpan={8}>
                           {guild.characters.length
                             ? w(
                                 "Tidak ada anggota yang cocok dengan pencarian.",
