@@ -17,6 +17,9 @@ export function MembersPanel({
 }) {
   const w = useWords();
   const [editing, setEditing] = useState<Character | null>(null);
+  const [deleting, setDeleting] = useState<Character | null>(null);
+  const [deleteBusy, setDeleteBusy] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
   const [search, setSearch] = useState("");
   const filteredCharacters = useMemo(() => {
     const query = search.trim().toLocaleLowerCase();
@@ -81,6 +84,17 @@ export function MembersPanel({
                 `${data.characters.length} characters`,
               )}
         </div>
+        {deleting && <div className="guild-delete-confirm" role="region" aria-label={w("Konfirmasi hapus anggota", "Confirm member deletion")}>
+          <strong>{w("Hapus anggota", "Delete member")} {deleting.name}?</strong>
+          <p>{w("Anggota akan dihapus dari daftar guild dan peserta draft. Riwayat raid yang sudah dikunci, pembagian, serta pembayaran tetap tersimpan. Akun pengurus tidak ikut dihapus.", "This removes the member from the guild roster and draft raids. Locked raid history, allocations, and payments are retained. Officer accounts are unaffected.")}</p>
+          {deleteError && <p className="guild-error" role="alert">{deleteError}</p>}
+          <div className="guild-links"><button disabled={deleteBusy} className="guild-delete-button" onClick={async () => {
+            setDeleteBusy(true); setDeleteError("");
+            try { await command("delete_character", {id:deleting.id}); if (editing?.id === deleting.id) setEditing(null); setDeleting(null); }
+            catch (error) { setDeleteError(error instanceof Error ? error.message : "Request failed"); }
+            finally { setDeleteBusy(false); }
+          }}>{deleteBusy ? w("Menghapus…", "Deleting…") : w("Ya, hapus anggota", "Yes, delete member")}</button><button disabled={deleteBusy} onClick={() => setDeleting(null)}>{w("Batal", "Cancel")}</button></div>
+        </div>}
         <div className="guild-table-wrap">
           <table className="guild-table">
             <thead>
@@ -112,9 +126,10 @@ export function MembersPanel({
                   </td>
                   <td>
                     {data.role !== "member" && (
-                      <button onClick={() => setEditing(c)}>
-                        {w("Edit", "Edit")}
-                      </button>
+                      <div className="guild-links">
+                        <button onClick={() => setEditing(c)}>{w("Edit", "Edit")}</button>
+                        <button className="guild-delete-button" disabled={deleteBusy} onClick={() => { setDeleting(c); setDeleteError(""); }}>{w("Hapus", "Delete")}</button>
+                      </div>
                     )}
                   </td>
                 </tr>

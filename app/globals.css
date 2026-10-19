@@ -277,3 +277,7 @@ html,body{background:#f4f2ed;color:#202124}.app-shell{background:radial-gradient
 .raid-participant-pagination .guild-links { gap: 8px; }
 @media(max-width: 480px) { .raid-participant-pagination .guild-links { width: 100%; justify-content: space-between; } .raid-participant-pagination button { padding: 9px 11px; font-size: 12px; } }
 @media(max-width: 700px) { .raid-estimate-tooltip { position: fixed; top: auto; right: 16px; bottom: 16px; left: 16px; width: auto; transform: translateY(6px); } .raid-estimate-tooltip::after { display: none; } .raid-estimate:hover .raid-estimate-tooltip,.raid-estimate:focus-visible .raid-estimate-tooltip { transform: translateY(0); } }
+.guild-shell button.guild-delete-button { color: #9b3c34; border-color: #e1b5ae; background: #fff3f0; }
+.guild-delete-confirm { padding: 18px; border: 1px solid #e1b5ae; border-radius: 10px; background: #fff9f7; margin: 16px 0; }
+.guild-delete-confirm strong { color: #873e35; }
+.guild-delete-confirm p { font-size: 13px; }

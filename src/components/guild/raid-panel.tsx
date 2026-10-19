@@ -81,7 +81,7 @@ export function RaidPanel({
   const editable = canEdit && ["draft", "locked"].includes(raid.status);
   const final = ["final", "superseded"].includes(raid.status);
   const [selected, setSelected] = useState(
-    data.participants.map((p) => p.character_id),
+    data.participants.filter(p => guild.characters.some(c => c.id === p.character_id)).map((p) => p.character_id),
   );
   const [participantQuery, setParticipantQuery] = useState("");
   const [participantPage, setParticipantPage] = useState(0);

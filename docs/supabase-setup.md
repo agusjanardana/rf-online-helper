@@ -27,6 +27,7 @@ Pada project baru, jalankan file berikut **berurutan**, masing-masing sekali, me
 4. `supabase/migrations/202609300004_guild_reward_transparency.sql`
 5. `supabase/migrations/202610010005_member_directory.sql`
 6. `supabase/migrations/202610010006_raid_member_visibility.sql`
+7. `supabase/migrations/202610190007_delete_guild_character.sql`
 
 Jika migration sebelumnya sudah dijalankan, cukup jalankan yang belum diterapkan. Migration pertama/dua merupakan fondasi historis. Migration ketiga memindahkan akun, sesi, serta akses database ke autentikasi aplikasi tanpa Supabase Auth.
 
@@ -147,3 +148,7 @@ Jika hasil pencarian menyebut format database belum diperbarui, terapkan migrati
 ## Pagination dan visibilitas kegiatan
 
 Daftar anggota publik dan daftar kelola anggota menampilkan 10 baris per halaman (pagination di browser; roster tetap dimuat sekali). Riwayat kegiatan pengurus juga menampilkan 10 kegiatan per halaman. Pada riwayat raid, pengurus dapat mencentang **Tampilkan di member**; perubahan disimpan langsung dan dicatat dalam audit. Raid lama dan raid baru secara default tetap dicentang. Hanya raid final yang dicentang dikirim oleh pencarian publik; filter ini diterapkan sebelum pagination 10 raid di database. Pengaturan ini berlaku untuk semua pencarian member dalam guild.
+
+## Hapus anggota guild
+
+Pengurus dapat memilih **Hapus** pada daftar karakter dan mengonfirmasi nama anggota. Migration 007 menyembunyikan karakter dari roster pengurus, roster publik, serta pencarian nama. Peserta pada raid draft dihapus dan versi draft diperbarui. Snapshot raid terkunci/final, alokasi, dan pembayaran tetap tersimpan. Akun dan izin pengurus tidak ikut dihapus. Nama karakter dapat didaftarkan kembali sebagai karakter baru; riwayat lama tetap terikat ke karakter lama.
