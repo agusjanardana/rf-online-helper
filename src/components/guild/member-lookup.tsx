@@ -14,7 +14,8 @@ import { RewardFormula } from "./reward-formula";
 import { SearchSelect } from "./search-select";
 import { useEffect, useState, type FormEvent } from "react";
 import { api } from "@/src/lib/guild-api";
-import { Field, useWords, value } from "./ui";
+import { CharacterSuggestions } from "./character-suggestions";
+import { useWords, value } from "./ui";
 
 type Search = {
   character_name: string;
@@ -258,18 +259,7 @@ export function MemberLookup() {
                   setResult(null);
                 }}
               />
-              <Field label={w("Nama karakter", "Character name")}>
-                <input
-                  name="character"
-                  required
-                  maxLength={80}
-                  placeholder={w(
-                    "Nama karakter dalam game",
-                    "In-game character name",
-                  )}
-                  autoComplete="off"
-                />
-              </Field>
+              <CharacterSuggestions key={JSON.stringify([server, guild])} server={server} guild={guild} />
             </div>
             <button
               className="member-search-submit"

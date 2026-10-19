@@ -28,6 +28,7 @@ Pada project baru, jalankan file berikut **berurutan**, masing-masing sekali, me
 5. `supabase/migrations/202610010005_member_directory.sql`
 6. `supabase/migrations/202610010006_raid_member_visibility.sql`
 7. `supabase/migrations/202610190007_delete_guild_character.sql`
+8. `supabase/migrations/202610190008_member_suggestions.sql`
 
 Jika migration sebelumnya sudah dijalankan, cukup jalankan yang belum diterapkan. Migration pertama/dua merupakan fondasi historis. Migration ketiga memindahkan akun, sesi, serta akses database ke autentikasi aplikasi tanpa Supabase Auth.
 
@@ -152,3 +153,7 @@ Daftar anggota publik dan daftar kelola anggota menampilkan 10 baris per halaman
 ## Hapus anggota guild
 
 Pengurus dapat memilih **Hapus** pada daftar karakter dan mengonfirmasi nama anggota. Migration 007 menyembunyikan karakter dari roster pengurus, roster publik, serta pencarian nama. Peserta pada raid draft dihapus dan versi draft diperbarui. Snapshot raid terkunci/final, alokasi, dan pembayaran tetap tersimpan. Akun dan izin pengurus tidak ikut dihapus. Nama karakter dapat didaftarkan kembali sebagai karakter baru; riwayat lama tetap terikat ke karakter lama.
+
+## Saran nama karakter
+
+Migration 008 menyediakan pencarian nama anggota berdasarkan server dan guild terpilih. Input menunggu 350 ms setelah ketikan terakhir, membatalkan permintaan lama, dan menampilkan maksimal 10 nama. Hanya nama yang dikembalikan; anggota yang dihapus dikecualikan. Mengganti server/guild mengosongkan input nama. Arrow Up/Down dan Enter memilih saran, Escape menutupnya. Nama tetap dapat diketik manual jika layanan saran gagal.
